@@ -1,4 +1,5 @@
-import com.practice.ScatterOrder
+package com.practice
+
 import java.time.Instant
 import java.util.*
 
