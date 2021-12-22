@@ -1,111 +1,91 @@
 package com.practice;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class ScatterOrder {
 
+    private static final int COUNT = 4000;
+
     public static void main(String[] args) {
 
-        List<P> generatedPersons = generatePersonList();
+        List<Person> persons = TallerAheadLineSecondKt.getValidList(new ArrayList<>(), 4000);
+//        persons.add(new Person(10, 7));
+//        persons.add(new Person(80, 1));
+//        persons.add(new Person(10, 5));
+//        persons.add(new Person(20, 4));
+//        persons.add(new Person(40, 2));
+//        persons.add(new Person(30, 2));
+//        persons.add(new Person(90, 0));
+//        persons.add(new Person(80, 0));
 
+        System.out.println("Start....\n\n\n");
+        Instant start = Instant.now();
 
-//        List<P> persons = new ArrayList<>();
-//        persons.add(new P(10, 7));
-//        persons.add(new P(80, 1));
-//        persons.add(new P(10, 5));
-//        persons.add(new P(20, 4));
-//        persons.add(new P(40, 2));
-//        persons.add(new P(30, 2));
-//        persons.add(new P(90, 0));
-//        persons.add(new P(80, 0));
+        persons.sort(new Comparator<Person>() {
 
-        generatedPersons.forEach(p -> {
-//            System.out.println(p.height);
-        });
-//        System.out.println("/r/n/n\n");
-        var startTime = Instant.now().toEpochMilli();
-        generatedPersons.sort(new Comparator<P>() {
-
-            public int compare(P o1, P o2) {
-                if (o1.height == o2.height) {
-                    return -1 * Integer.compare(o1.higherNum, o2.higherNum);
+            public int compare(Person o1, Person o2) {
+                if (o1.getHeight() == o2.getHeight()) {
+                    return -1 * Integer.compare(o1.getTallerAheadCount(), o2.getTallerAheadCount());
                 }
-                return -1 * Integer.compare(o1.height, o2.height);
+                return -1 * Integer.compare(o1.getHeight(), o2.getHeight());
             }
         });
+        Instant endOfSort = Instant.now();
 
-        LinkedList<P> linkedPersons = new LinkedList<>();
-        Iterator<P> iterator = null;
-        for (P p : generatedPersons) {
-//            System.out.println("for...: p -> "+p.toString());
-            if (linkedPersons.isEmpty()) {
-                linkedPersons.add(p);
-                continue;
-            }
+        LinkedList<Person> linkedPersons = new LinkedList<>();
+        Iterator<Person> iterator = null;
+        for (Person p : persons) {
+
             iterator = linkedPersons.descendingIterator();
             int pos = -1;
-            int counter = p.higherNum;
-            while ( iterator.hasNext()) {
-                P item = iterator.next();
+            int counter = p.getTallerAheadCount();
+            while (iterator.hasNext()) {
+                Person item = iterator.next();
 
-                if(p.height<=item.height && counter>0) {
+                if (p.getHeight() <= item.getHeight() && counter > 0) {
                     counter--;
-                    pos = linkedPersons.indexOf(item);}
+                    pos = linkedPersons.indexOf(item);
+                }
             }
-            if (pos!=-1) {
+            if (pos != -1) {
                 linkedPersons.add(pos, p);
             } else {
                 linkedPersons.addLast(p);
             }
+
+
         }
-        var endTime = Instant.now().toEpochMilli();
-        System.out.println("list size: " + generatedPersons.size());
-        System.out.println(startTime);
-        System.out.println(endTime);
-        System.out.println("Time elapsed: " + (endTime - startTime));
+        Instant finish = Instant.now();
+        long timeElapsed = Duration.between(start, finish).toMillis();
+        long timeElapsedSort = Duration.between(start, endOfSort).toMillis();
+        System.out.println("count: " + COUNT + "  TIME: " + timeElapsed);
+        System.out.println("sort  TIME: " + timeElapsedSort);
+
         iterator = linkedPersons.iterator();
         while (iterator.hasNext()) {
-            P item = iterator.next();
-//            System.out.println(linkedPersons.indexOf(item) +" - "+item.toString());
-// System.out.println(linkedPersons.indexOf(item));
+            Person item = iterator.next();
+            System.out.println(linkedPersons.indexOf(item) + " - " + item.toString());
+
         }
-
-    }
-
-    public static List<P> generatePersonList() {
-        List<P> list = new ArrayList<>();
-        for (int i = 0; i < 4000; i++) {
-            int height = getRandomNumber(1, 200);
-            int higherNumber = getRandomNumber(1, 400000000);
-            list.add(new P(height, higherNumber));
-        }
-        return list;
-    }
-
-    public static int getRandomNumber(int min, int max) {
-        return (int) ((Math.random() * (max - min)) + min);
-    }
-
-    static class P {
-        public int height;
-        public int higherNum;
-
-        public P(int height, int higherNum) {
-            super();
-            this.height = height;
-            this.higherNum = higherNum;
-        }
-
-        @Override
-        public String toString() {
-            return "P [height=" + height + ", higherNum=" + higherNum + "]";
-        }
-
     }
 }
+
+
+class ScatterOrderUtil {
+
+    public static List<Person> getData(int count) {
+        List<Person> result = new ArrayList<>();
+
+        Random random = new Random();
+        for (int i = 0; i < count; i++) {
+            result.add(new Person(random.nextInt(count), random.nextInt(count / 10)));
+        }
+
+        return result;
+    }
+
+}
+
 
