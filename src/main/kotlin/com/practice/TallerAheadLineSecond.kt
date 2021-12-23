@@ -21,19 +21,7 @@ val personList2 = listOf(
     Person(8, 3)
 )
 
-val personList3: MutableList<Person> = mutableListOf(
-    Person(80, 0),
-    Person(90, 0),
-    Person(30, 2),
-    Person(40, 2),
-    Person(20, 4),
-    Person(10, 5),
-    Person(80, 1),
-    Person(10, 7),
-)
-
-//val persons4 = getData(ScatterOrder.COUNT)
-private val persons4 = getDataMy(4000)
+private val invalidPersonList = getDataMy(4000)
 
 fun getDataMy(count: Int): List<Person> {
     val result: MutableList<Person> = ArrayList()
@@ -47,14 +35,18 @@ fun getDataMy(count: Int): List<Person> {
 tailrec fun getValidList(list: MutableList<Person>, length: Int): MutableList<Person> {
     if (length < 1) return list
     val randomHeight = Random().nextInt(200)
-    var tallerCount = 0
-        list.forEach { if (it.height > randomHeight) tallerCount++}
+
+//    var tallerCount = 0
+//    list.forEach { if (it.height > randomHeight) tallerCount++ }
+
+    //instead forEach, tallerCount immutable with this approach
+    val tallerCount = list.map { it.height }.fold(0, {acc, height -> if (height > randomHeight) acc + 1 else acc})
 
     list.add(Person(randomHeight, tallerCount))
-    return getValidList(list, length-1)
+    return getValidList(list, length - 1)
 }
 
-fun getOriginalOrderOfLine2(list: List<Person>): LinkedList<Person> {
+fun getOriginalOrderOfLine2(list: MutableList<Person>): LinkedList<Person> {
     println("Calc started...")
     val start = Instant.now()
     val comparator = compareBy<Person> { it.height }.reversed()
@@ -101,7 +93,19 @@ fun main() {
     val list = getValidList(ArrayList(), 4000)
 //    println(list)
 //    println("______________________________________________")
+    val originalList = list.toList()
     list.shuffle()
-    val originalLine = getOriginalOrderOfLine2(list)
-    originalLine.forEach { println(it) }
+    val resultList = getOriginalOrderOfLine2(list)
+//    resultList.forEach { println(it) }
+    println("bad results: ${evaluateResult(originalList, resultList, 0, 0)}")
+}
+
+tailrec fun evaluateResult(originalList: List<Person>, resultList: List<Person>, index: Int, errors: Int): Int {
+    if (index > originalList.size - 1) return errors
+    if (originalList[index].height != resultList[index].height || originalList[index].tallerAheadCount != resultList[index].tallerAheadCount) {
+        println("invalid result at index: $index,  original Person: ${originalList[index]}, resulted Person: ${resultList[index]}")
+        return evaluateResult(originalList, resultList, index + 1, errors + 1)
+    } else {
+        return evaluateResult(originalList, resultList, index + 1, errors)
+    }
 }

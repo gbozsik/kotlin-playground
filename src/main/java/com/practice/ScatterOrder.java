@@ -10,7 +10,7 @@ public class ScatterOrder {
 
     public static void main(String[] args) {
 
-        List<Person> persons = TallerAheadLineSecondKt.getValidList(new ArrayList<>(), 4000);
+        List<Person> persons = TallerAheadLineSecondKt.getValidList(new ArrayList<>(), 40);
 //        persons.add(new Person(10, 7));
 //        persons.add(new Person(80, 1));
 //        persons.add(new Person(10, 5));
@@ -22,7 +22,9 @@ public class ScatterOrder {
 
         System.out.println("Start....\n\n\n");
         Instant start = Instant.now();
+        var originalList = new ArrayList<>(persons);
 
+        Collections.shuffle(persons);
         persons.sort(new Comparator<Person>() {
 
             public int compare(Person o1, Person o2) {
@@ -62,12 +64,16 @@ public class ScatterOrder {
         long timeElapsedSort = Duration.between(start, endOfSort).toMillis();
         System.out.println("count: " + COUNT + "  TIME: " + timeElapsed);
         System.out.println("sort  TIME: " + timeElapsedSort);
+        Collections.reverse(originalList);
+        System.out.println("bad results: " + TallerAheadLineSecondKt.evaluateResult(originalList, linkedPersons, 0, 0));
 
-        iterator = linkedPersons.iterator();
-        while (iterator.hasNext()) {
-            Person item = iterator.next();
-            System.out.println(linkedPersons.indexOf(item) + " - " + item.toString());
+        for (int i = 0; i < originalList.size(); i++) {
+            System.out.println("original: " + originalList.get(i) + "; resul: " + linkedPersons.get(i));
 
+//        iterator = linkedPersons.iterator();
+//        while (iterator.hasNext()) {
+//            Person item = iterator.next();
+//            System.out.println(linkedPersons.indexOf(item) + " - " + item.toString());
         }
     }
 }
